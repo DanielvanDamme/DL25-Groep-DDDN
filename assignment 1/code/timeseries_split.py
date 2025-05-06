@@ -11,15 +11,15 @@ def load_time_series(mat_file_path: str, variable_name: str = 'Xtrain') -> np.nd
 
 # Given a 1D array create a dataframe that contains the target value (y) and columns for each lag
 def create_lagged_features(series: np.ndarray, n_lags: int, dropna: bool = True) -> pd.DataFrame:
-    df = pd.DataFrame({'y': series}) # Initial dataframe with just labels
-
-    for lag in range(1, n_lags + 1): # Add columns for every lag
+    df = pd.DataFrame({'y': series})
+    for lag in range(1, n_lags + 1):
         df[f'lag_{lag}'] = df['y'].shift(lag)
-
+    
     if dropna:
-        df.dropna().reset_index(drop=True) # Drop the NaN
-
+        df = df.dropna().reset_index(drop=True)  # <-- fixed: assigned the cleaned DataFrame back
+    
     return df
+
 
 # Given the 'lagged' dataframe, split them into training and testing, if the size is small enough
 # for multiple 'windows' to be taken from original data make those as well. The split percentage
