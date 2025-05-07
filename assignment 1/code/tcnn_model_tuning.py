@@ -3,6 +3,7 @@ import torch
 import numpy as np
 from pytorch_tcn import TCN
 import statistics
+import json
 from timeseries_split import (
     load_time_series,
     create_lagged_features,
@@ -11,11 +12,11 @@ from timeseries_split import (
 )
 
 # Load and prepare
-series = load_time_series("assignment 1\code\Xtrain.mat")
+series = load_time_series("Xtrain.mat")
 # Normalization
 series = (series - np.mean(series)) / np.std(series)
 
-def get_data(n_lags):
+def get_data(n_lags, series):
     """
     For each fold, concatenate current and all preceding training data,
     including testing data from all preceding folds.
@@ -112,7 +113,7 @@ def objective(trial):
     kernel_size = trial.suggest_int("kernel_size", 3, 7, step=2)
     lr = trial.suggest_float("lr", 1e-5, 1e-2, log=True)
     
-    folds = get_data(n_lags)
+    folds = get_data(n_lags, series)
     model = setup_model(n_lags, n_channels, n_layers, kernel_size)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -121,7 +122,12 @@ def objective(trial):
     score = train_test_loop(folds,model,optimizer,criterion)
     return score
 
+
 study = optuna.create_study(direction="minimize")
-study.optimize(objective, n_trials=30)
+study.optimize(objective, n_trials=100)
+
 
 print("Best parameters", study.best_params)
+
+with open("best_params.json", "w") as f:
+    json.dump(study.best_params, f)
