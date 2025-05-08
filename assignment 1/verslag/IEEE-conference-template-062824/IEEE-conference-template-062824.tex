@@ -45,8 +45,33 @@ problem to our smaller problem. Last paragraph should summarize our results to f
 we can give context and background if we want than the abstract. We cannot give a conclusion, at 
 most preview/tease the conclusion/results.
 
+% Daan: I write this section with 'n' folds, if someone does some hyperparameter optimization with
+% with the number of folds and finds empirically what is best then please replace the 'n' here with
+% that number or put at the end we selected 'n = 5' or something.
+
+% Daan: To predict 200 time points into the future for every model for prophet: 
+% https://stackoverflow.com/questions/64822488/how-to-use-prophets-make-future-dataframe-with-multiple-regressors
+% I recommend we do not do this, so let's just do it for LTSM or the best model.
+
 \section{Methods}
-TODO: our approach and subsections for why we use that approach.
+\subsection{Training data procedures}
+First we normalize the data to zero mean and unit variance. We then split the normalized time 
+series data in $n$-folds. These folds are further divided in train and validation folds with a 
+ratio of $80/20$ respectively. We then train on the train fold(s) and validate on the validation 
+folds. Every fold the train fold grows by concatenating the previous and current folds train fold, 
+aka an accumulating train fold. The validation fold remains the same size.
+
+% Daan: I used mean absolute error as a metric
+Every iteration we validate on the validation fold and save the metrics and an increasing weight. 
+The metrics over the folds are averaged taking into account these weights using the following
+formula:
+
+$$avg = \frac{\sum_{i=1}^{n}(\text{MEA}_{fold_n} * weight_n)}{\sum_{i=1}^n weight_n}$$
+
+% Train and test loss over epochs figuren.
+\subsection{Prophet (Meta)}
+TODO: beschrijf hoe Prophet werkt, wat betreft hoe de data aangeleverd wordt met de lags en de 
+vergelijking die ik maakte met lineaire regressie aanpak en waarom het slecht was.
 
 \section{Results}
 TODO: This should be a sequence of statements each supported with some evidence and a conclusion.
