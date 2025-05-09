@@ -4,6 +4,10 @@
 %Template version as of 6/27/2024
 
 \usepackage{cite}
+\usepackage{url}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{placeins}
 \usepackage{svg}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
@@ -33,7 +37,7 @@ to predict future values in this time series. In this report we will describe th
 to train our model, the results we obtained and the conclusions we drew from these results.
 
 \section{Methods}
-\subsection{Training data engineering}
+\subsection{Training data engineering}\label{traindataengineer}
 First we prepare the timeseries data to accomodate lag features (past values of a variable at a
 previous time step) using a lag-based sliding window approach. We do this by creating a new 
 dataframe with the lagged values of the time series and dropping the rows with missing values.
@@ -66,7 +70,7 @@ the problem of predicting future values.
 
 %$$avg = \frac{\sum_{i=1}^{n}(\text{MSE}_{fold_n} * weight_n)}{\sum_{i=1}^n weight_n}$$
 
-\subsection{LSTM}
+\subsection{Long Short-Term Memory (LSTM)}
 We used a Long Short-Term Memory (LSTM) neural network to forecast our time series data, building on 
 the architecture and tuning strategy described by Vien et al. \cite{kuen2021machine}. Since we are working 
 with a univariate time series, the model was set up to predict future values based solely on past 
@@ -81,6 +85,7 @@ The LSTM architecture itself was straightforward: it included a sequence input l
 a tunable number of units, a fully connected layer, and an output layer. To evaluate the model, we used 
 expanding window cross-validation (also known as forward-chaining), which ensured that the model was 
 always tested on future data it hadn’t seen during training — an important detail for time series tasks.
+Moreover a dropout option of $0.2$ was selected.
 
 We used mean absolute error (MAE) and mean squared error (MSE) to measure performance across folds. The 
 final model was chosen based on the average error, weighted by the size of the training data in each fold.
@@ -112,33 +117,173 @@ we found in the previous step.
     \label{tab:epoch_performance}
 \end{table}  
 
+\subsection{Temporal Convolutional Neural Network (TCNN)}\label{methodstcnn}
+Additionally, we shortly experiment with a temporal convolutional neural network (TCNN) 
+\cite{lea2017temporal}. TCNNs are models that utilize 1-dimensional convolutional layers to capture 
+temporal dependencies in data. TCNNs make use of dilated convolutions, where a filter is applied 
+over a larger receptive field by skipping over input values. This allows modeling of long-range 
+dependencies without an increase in computational complexity.
+
+To find the best hyperparameters for our model, we leverage the Optuna Python library 
+\cite{optuna}. Optuna optimizes hyperparameters by iteratively generating parameter configurations 
+with a probabilistic model, and observing which configurations minimize the weighted test loss. 
+This search was performed over 2000 iterations. 
+
+To accelerate the optimization process, we only train the model for 10 epochs each iteration. We 
+utilize a mean square error loss function. We use the Adam optimizer for training. In the TCNN 
+architecture, we use the same number of channels for each layer to maintain a consistent feature 
+dimension throughout the network. This design choice simplifies the optimization process. Table 
+\ref{tab:hyperparameter_search} below illustrates what hyperparameters were found, as well as in 
+what ranges the search was conducted. The results of this model are described in the supplementary
+section \ref{suppltcnnresults} as the validation on the test data was not done in line with the 
+assignment.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{rccc}
+    \hline
+    \textbf{Hyperparameter} & \textbf{Range} & \textbf{Step Size} & \textbf{Found Value} \\
+    \hline
+    \text{number of previous steps} & [10, 60] & 10 & 60 \\
+    \text{channels per layer}       & [2, 40]  & 2  & 40 \\
+    \text{layers}                   & [2, 5]   & 1  & 2 \\
+    \text{kernel size}             & [3, 9]   & 2  & 3 \\
+    \text{learning rate}           & [1e-5, 1e-2] & Log Scale & 7.49e-3 \\
+    \hline
+    \end{tabular}
+    \caption{Hyperparameter search ranges, step sizes, and found values.}
+    \label{tab:hyperparameter_search}
+\end{table}
+
+
+
 \section{Results}
-Our LSTM model with $\textsc{epochs} = 50$,  achieved a mean absolute error (MAE) of $x$ and a mean squared error (MSE) of $y$ on the
-test data (recursively predicted). The exact parameters and that were considered  
+\subsection{Grid search}
+Doing another grid search using 50 Epochs which we found from our earlier search we group the results by
+number of steps looking back 'lags' and number of hidden units. In table \ref{tab:lag_hidden_performance} we can see that
+the lowest MSE is at lag = $15.0$ and hidden units = $100$. The lowest MAE is at lag = $35.0$ and hidden units = $50$.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{r r r r}
+    \hline
+    \textbf{Lag} & \textbf{Hidden Units} & \textbf{MSE} & \textbf{MAE} \\
+    \hline
+    5.0  & 5   & 5216.51  & 51.62 \\
+      & 10  & 4690.37  & 49.38 \\
+      & 20  & 4979.76  & 53.16 \\
+      & 50  & 15547.00 & 81.46 \\
+      & 100 & 104445.60 & 139.39 \\
+    \hline
+    15.0  & 5   & 4686.33  & 53.09 \\
+      & 10  & 2371759.00 & 477.48 \\
+      & 20  & 4746.73  & 52.84 \\
+      & 50  & 4764.41  & 57.50 \\
+      & 100 & 3581.54  & 49.32 \\
+    \hline
+    25.0  & 5   & 4031.51  & 50.03 \\
+      & 10  & 4458.75  & 49.04 \\
+      & 20  & 5126.04  & 49.71 \\
+      & 50  & 6044.41  & 56.84 \\
+      & 100 & 4737.58  & 49.49 \\
+    \hline
+    35.0  & 5   & 4963.18  & 51.81 \\
+      & 10  & 4913.51  & 48.33 \\
+      & 20  & 4654.49  & 46.13 \\
+      & 50  & 4955.10  & 45.42 \\
+      & 100 & 5091.84  & 46.26 \\
+    \hline
+    50.0  & 5   & 6657.15  & 63.24 \\
+      & 10  & 5439.13  & 50.24 \\
+      & 20  & 5220.59  & 47.16 \\
+      & 50  & 4836.12  & 46.71 \\
+      & 100 & 5222.38  & 47.17 \\
+    \hline
+    \end{tabular}
+    \caption{Model performance (MSE and MAE) for varying lag values and number of hidden units}
+    \label{tab:lag_hidden_performance}
+\end{table}
+    
+For our LSTM model with $\textsc{epochs} = 50$, hidden units = $50$ and number of lags = $35$ we 
+find the better model achieving a MAE $38.49$ of and a MSE of $2766.98$ on the test data 
+(recursively predicted as mentioned in Section \ref{traindataengineer}). A plotting of our 
+predicted values against the true values of the provided test data are shown in Figure
+
+\begin{figure}
+    \includegraphics[scale=0.5]{pictures/newmodelresultlag35hu50.png}
+    \caption{LTSM predictions vs Actual values. The plotted values are the recursively predicted 
+    values by our LTSM model using $50$ epochs, $35$ lags and $50$ hidden units}
+    \label{fig:modelresults}
+\end{figure}
 
 \section{Discussion}
-As described in our methods section we used a recursive approach to predict future values of the time series (see Figure \ref{fig:recursivecv}).
-We did this for the entire validation folds length and use this "recursive loss" as a metric to evaluate the model. 
-However it would have been interesting to compare this with a non-recursive approach, where we would predict the next 
-value using only the true variables instead of the predicted values. That way you can't accumulate faults
+As described in our methods section we used a recursive approach to predict future values of the 
+time series (see Figure \ref{fig:recursivecv}). We did this for the entire validation folds length 
+and use this "recursive loss" as a metric to evaluate the model. However it would have been 
+interesting to compare this with a non-recursive approach, where we would predict the next value 
+using only the true variables instead of the predicted values. That way you can't accumulate faults 
 made earlier.  
-A limitation in our approach is 
+A limitation in our approach is that we did not use more than one layer whereas using more could be
+more beneficial.
 
 \section*{AI statement}
 GitHub Copilot was used to assist in writing this report. It was used to generate code snippets and
-to help with the writing of the text. Moreover ChatGPT was used to format the single paper source as a 
-'$\backslash$bibitem'.
+to help with the writing of the text. Moreover ChatGPT was used to format the single paper source 
+as a '$\backslash$bibitem' and the tables in \LaTeX formatting.
 
 
 \begin{thebibliography}{9}
 
     \bibitem{kuen2021machine}
     T. Kuen, L. R. F. Rose, W. K. Kong, and B. S. Vien,\\
-    \textit{A machine learning approach for anaerobic reactor performance prediction using Long Short-Term Memory Recurrent Neural Network},\\
+    \textit{A machine learning approach for anaerobic reactor performance prediction using Long 
+    Short-Term Memory Recurrent Neural Network},\\
     Materials Research Proceedings, vol. 18, 2021.\\
     Publisher: Materials Research Forum LLC.
+
+    \bibitem{lea2017temporal}
+    C. Lea, M. D. Flynn, R. Vidal, A. Reiter, and G. D. Hager,\\
+    \textit{Temporal convolutional networks for action segmentation and detection},\\
+    Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 156--165, 2017.
+
+    \bibitem{optuna}
+    Optuna, \textit{Optuna: A hyperparameter optimization framework}, \url{https://optuna.org}, 2019.
     
-    \end{thebibliography}
+\end{thebibliography}
+
+\clearpage
+\onecolumn
+\section*{Supplementary TCNN results}\label{suppltcnnresults}
+The TCNN model achieved a mean absolute error of 28.68 and a mean squared error of 3.26. Using the
+found values as described in Table \ref{tab:hyperparameter_search}. It is important to note that in
+Figure 
+
+\begin{figure}[H]  % Force the figure to appear exactly here
+    \begin{subfigure}{0.45\textwidth}  % Adjust width to fit on the page
+        \centering
+        \includegraphics[scale=1]{pictures/train_test_curve.png}
+        \caption{Train vs. Test Curve. Here are the results of the loss as described in section 
+        \ref{methodstcnn}. It is important to note that these are not recursively predicted values.}
+        \label{fig:train_test_curve}
+    \end{subfigure}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]        
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[scale=0.8]{pictures/actual_vs_pred.png}
+        \caption{Actual vs. Predicted. The non-recursively predicted values plotted against the
+        true test values.}
+    \end{subfigure}
     
+    \vspace{0.5cm} % Adds a bit of space between the images
+    
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[scale=0.8]{pictures/recursive_predictions.png}
+        \caption{Recursive Predictions of the TCNN model. These are the next $200$ recursively
+        values as produced by the TCNN model.}
+    \end{subfigure}
+\end{figure}
 
 \end{document}
