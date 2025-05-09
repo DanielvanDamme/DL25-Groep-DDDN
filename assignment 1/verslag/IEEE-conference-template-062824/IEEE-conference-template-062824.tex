@@ -40,6 +40,7 @@ TODO
 \end{IEEEkeywords}
 
 \section{Introduction}
+
 TODO: Why does the paper matter? Set up gap in science/knowledge focusing down from a bigger 
 problem to our smaller problem. Last paragraph should summarize our results to fill this gap. Here 
 we can give context and background if we want than the abstract. We cannot give a conclusion, at 
@@ -50,23 +51,23 @@ most preview/tease the conclusion/results.
 % that number or put at the end we selected 'n = 5' or something.
 
 \section{Methods}
-\subsection{Training data procedures}
-First we prepare the timeseries data to accomodate lag values (past values of a variable at a
-previous time step). We do this by creating a new dataframe with the lagged values of the time series 
-and dropping the rows with missing values. We then split the time series data in $n$-folds. These folds 
-are further divided in train and validation folds with a ratio of $80/20$ respectively. Then we standardize 
-the data to zero mean and unit variance.
+\subsection{Training data engineering}
+First we prepare the timeseries data to accomodate lag features (past values of a variable at a
+previous time step) using a lag-based sliding window approach. We do this by creating a new 
+dataframe with the lagged values of the time series and dropping the rows with missing values.
 
 Because the objective of this model is to predict future values of the time series, we need to
 make sure that the model is trained on past values and validated on future values. Every fold the 
 train fold grows by including the entire previous fold worth of data and adding the next fold's train fold.  
-The validation fold remains the same size. The way the validation fold is used is we take the first $x$
-input points (where $x$ is the number of lags) and use those to predict the next value $\hat{y}$. We then 
-exclude the first input from this input point window and add $\hat{y}$ to the end of the input point window.
-Then the next value is predicted. This is repeated until the end of the validation fold is reached.
-
-
-
+The validation fold remains the same size. The validation fold is structured in the following manner:
+For a given time series of length $T$, we generate input-output pairs $(X_t,y_t)$ such that the 
+input vector $X_t$ contains the previous $n$ observations $[x_{t-n}, x_{t-n+1}, \ldots, x_{t-1}]$ 
+and the next value to be predicted is $\hat{y_k}$, which is the value at time $t$. $X_t$ is then 
+updated by removing the first value and inserting $\hat{y_k}$ at the end of the vector giving us
+$[x_{t-n+1}, \ldots, x_{t-1}, \hat{y_k}]$, and we predict the next value $\hat{y_{k+1}}$. This is 
+repeated until the end of the validation fold is reached. This recursive structure of predicting 
+values into the future by inlcuding already predicted values for subsequent predictions reflects 
+the problem of predicting future values. % TODO See figure
 
 % Daan: I used mean absolute error as a metric
 Every iteration we validate on the validation fold and save the metrics and an increasing weight. 
@@ -74,8 +75,6 @@ The metrics over the folds are averaged taking into account these weights using 
 formula:
 
 $$avg = \frac{\sum_{i=1}^{n}(\text{MEA}_{fold_n} * weight_n)}{\sum_{i=1}^n weight_n}$$
-
-for efficiency purposes we save time during the grid search for finding epochs 
 
 \subsection{LSTM}
 We used a Long Short-Term Memory (LSTM) neural network to forecast our time series data, building on 
@@ -95,6 +94,11 @@ always tested on future data it hadn’t seen during training — an important d
 
 We used mean absolute error (MAE) to measure performance across folds. The final model was chosen based 
 on the average error, weighted by the size of the training data in each fold.
+
+\subsection{LTSM model parameter intialization}
+For efficiency purposes we save time during our initial search for an appropriate number of epochs by 
+fixing the number of hidden units to $15$ and lagged time steps to $25$. These values are the 'averages'
+of the values we we will iterate over during the later more extensive grid search. 
 
 \section{Results}
 TODO: This should be a sequence of statements each supported with some evidence and a conclusion.
