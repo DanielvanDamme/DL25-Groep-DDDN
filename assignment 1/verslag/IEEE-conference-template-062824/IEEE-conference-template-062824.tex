@@ -49,17 +49,24 @@ most preview/tease the conclusion/results.
 % with the number of folds and finds empirically what is best then please replace the 'n' here with
 % that number or put at the end we selected 'n = 5' or something.
 
-% Daan: To predict 200 time points into the future for every model for prophet: 
-% https://stackoverflow.com/questions/64822488/how-to-use-prophets-make-future-dataframe-with-multiple-regressors
-% I recommend we do not do this, so let's just do it for LTSM or the best model.
-
 \section{Methods}
 \subsection{Training data procedures}
-First we normalize the data to zero mean and unit variance. We then split the normalized time 
-series data in $n$-folds. These folds are further divided in train and validation folds with a 
-ratio of $80/20$ respectively. We then train on the train fold(s) and validate on the validation 
-folds. Every fold the train fold grows by concatenating the previous and current folds train fold, 
-aka an accumulating train fold. The validation fold remains the same size.
+First we prepare the timeseries data to accomodate lag values (past values of a variable at a
+previous time step). We do this by creating a new dataframe with the lagged values of the time series 
+and dropping the rows with missing values. We then split the time series data in $n$-folds. These folds 
+are further divided in train and validation folds with a ratio of $80/20$ respectively. Then we standardize 
+the data to zero mean and unit variance.
+
+Because the objective of this model is to predict future values of the time series, we need to
+make sure that the model is trained on past values and validated on future values. Every fold the 
+train fold grows by including the entire previous fold worth of data and adding the next fold's train fold.  
+The validation fold remains the same size. The way the validation fold is used is we take the first $x$
+input points (where $x$ is the number of lags) and use those to predict the next value $\hat{y}$. We then 
+exclude the first input from this input point window and add $\hat{y}$ to the end of the input point window.
+Then the next value is predicted. This is repeated until the end of the validation fold is reached.
+
+
+
 
 % Daan: I used mean absolute error as a metric
 Every iteration we validate on the validation fold and save the metrics and an increasing weight. 
@@ -68,10 +75,26 @@ formula:
 
 $$avg = \frac{\sum_{i=1}^{n}(\text{MEA}_{fold_n} * weight_n)}{\sum_{i=1}^n weight_n}$$
 
-% Train and test loss over epochs figuren.
-\subsection{Prophet (Meta)}
-TODO: beschrijf hoe Prophet werkt, wat betreft hoe de data aangeleverd wordt met de lags en de 
-vergelijking die ik maakte met lineaire regressie aanpak en waarom het slecht was.
+for efficiency purposes we save time during the grid search for finding epochs 
+
+\subsection{LSTM}
+We used a Long Short-Term Memory (LSTM) neural network to forecast our time series data, building on 
+the architecture and tuning strategy described by Vien et al. [1]. Since we were working with a univariate 
+time series, the model was set up to predict future values based solely on past observations of the same 
+variable.
+
+Before training, we standardized the data using z-scores to ensure consistent scaling. We then performed 
+a three-dimensional grid search to tune the model, exploring different combinations of the number of 
+training epochs, the number of hidden units in the LSTM layer, and the number of lagged time steps used as 
+input. This helped us find the setup that worked best for our dataset.
+
+The LSTM architecture itself was straightforward: it included a sequence input layer, one LSTM layer with 
+a tunable number of units, a fully connected layer, and an output layer. To evaluate the model, we used 
+expanding window cross-validation (also known as forward-chaining), which ensured that the model was 
+always tested on future data it hadn’t seen during training — an important detail for time series tasks.
+
+We used mean absolute error (MAE) to measure performance across folds. The final model was chosen based 
+on the average error, weighted by the size of the training data in each fold.
 
 \section{Results}
 TODO: This should be a sequence of statements each supported with some evidence and a conclusion.
