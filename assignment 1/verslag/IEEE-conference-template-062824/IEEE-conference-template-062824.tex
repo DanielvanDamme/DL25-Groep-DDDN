@@ -4,6 +4,7 @@
 %Template version as of 6/27/2024
 
 \usepackage{cite}
+\usepackage{svg}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
 \usepackage{graphicx}
@@ -16,13 +17,13 @@
 \title{TODO}
 
 \author{\IEEEauthorblockN{Daniël Jochems}
-\IEEEauthorblockA{\textit{TODO (student number)}}
+\IEEEauthorblockA{}
 \and
 \IEEEauthorblockN{David}
-\IEEEauthorblockA{TODO}
+\IEEEauthorblockA{6787258}
 \and
 \IEEEauthorblockN{Niek Grimbergen}
-\IEEEauthorblockA{TODO}
+\IEEEauthorblockA{1958413}
 \and
 \IEEEauthorblockN{Daan van Dam}
 \IEEEauthorblockA{6434657}
@@ -30,25 +31,10 @@
 
 \maketitle
 
-\begin{abstract}
-TODO: Most important paragraph. Context (our question, the problem statement), content (here we go 
-over what we did and what we found), conclusion (why/how it matters). Max 150 words.
-\end{abstract}
-
-\begin{IEEEkeywords}
-TODO
-\end{IEEEkeywords}
-
 \section{Introduction}
-
-TODO: Why does the paper matter? Set up gap in science/knowledge focusing down from a bigger 
-problem to our smaller problem. Last paragraph should summarize our results to fill this gap. Here 
-we can give context and background if we want than the abstract. We cannot give a conclusion, at 
-most preview/tease the conclusion/results.
-
-% Daan: I write this section with 'n' folds, if someone does some hyperparameter optimization with
-% with the number of folds and finds empirically what is best then please replace the 'n' here with
-% that number or put at the end we selected 'n = 5' or something.
+For this assignment we were given time series data and were tasked to train a deep learning model
+to predict future values in this time series. In this report we will describe the methods we used 
+to train our model, the results we obtained and the conclusions we drew from these results.
 
 \section{Methods}
 \subsection{Training data engineering}
@@ -65,35 +51,51 @@ input vector $X_t$ contains the previous $n$ observations $[x_{t-n}, x_{t-n+1}, 
 and the next value to be predicted is $\hat{y_k}$, which is the value at time $t$. $X_t$ is then 
 updated by removing the first value and inserting $\hat{y_k}$ at the end of the vector giving us
 $[x_{t-n+1}, \ldots, x_{t-1}, \hat{y_k}]$, and we predict the next value $\hat{y_{k+1}}$. This is 
-repeated until the end of the validation fold is reached. This recursive structure of predicting 
+repeated until the end of the validation fold is reached (see Figure \ref{fig:recursivecv}). This recursive structure of predicting 
 values into the future by inlcuding already predicted values for subsequent predictions reflects 
-the problem of predicting future values. % TODO See figure
+the problem of predicting future values. 
 
-% Daan: I used mean absolute error as a metric
-Every iteration we validate on the validation fold and save the metrics and an increasing weight. 
-The metrics over the folds are averaged taking into account these weights using the following
-formula:
+\begin{figure}
+    \includegraphics[scale = 0.47]{pictures/recursivecv.drawio.png}
+    \caption{The recursive structure of the validation fold. The window of data points that are used 
+    to predict the next value are shown. The first window being only true data points, subsequent windows
+    inreasingly include predicted values until only predicted values are considered. The size of the 
+    train fold increases with every fold, while the validation fold remains the same size.}
+    \label{fig:recursivecv}
+\end{figure}
 
-$$avg = \frac{\sum_{i=1}^{n}(\text{MEA}_{fold_n} * weight_n)}{\sum_{i=1}^n weight_n}$$
+%Every iteration we validate on the validation fold and save the metrics and an increasing weight. 
+%The metrics over the folds are averaged taking into account these weights using the following
+%formula:
+
+%$$avg = \frac{\sum_{i=1}^{n}(\text{MSE}_{fold_n} * weight_n)}{\sum_{i=1}^n weight_n}$$
 
 \subsection{LSTM}
 We used a Long Short-Term Memory (LSTM) neural network to forecast our time series data, building on 
-the architecture and tuning strategy described by Vien et al. [1]. Since we were working with a univariate 
-time series, the model was set up to predict future values based solely on past observations of the same 
-variable.
+the architecture and tuning strategy described by Vien et al. \cite{kuen2021machine}. Since we are working 
+with a univariate time series, the model was set up to predict future values based solely on past 
+observations.
 
-Before training, we standardized the data using z-scores to ensure consistent scaling. We then performed 
-a three-dimensional grid search to tune the model, exploring different combinations of the number of 
-training epochs, the number of hidden units in the LSTM layer, and the number of lagged time steps used as 
-input. This helped us find the setup that worked best for our dataset.
+Before training, the library we used standardized the data using z-scores to ensure consistent scaling. We 
+then performed a three-dimensional grid search to tune the model, exploring different combinations of the 
+number of training epochs, the number of hidden units in the LSTM layer, and the number of lagged time 
+steps used as input. This helped us find the setup that worked best for our dataset.
 
 The LSTM architecture itself was straightforward: it included a sequence input layer, one LSTM layer with 
 a tunable number of units, a fully connected layer, and an output layer. To evaluate the model, we used 
 expanding window cross-validation (also known as forward-chaining), which ensured that the model was 
 always tested on future data it hadn’t seen during training — an important detail for time series tasks.
 
-We used mean absolute error (MAE) to measure performance across folds. The final model was chosen based 
-on the average error, weighted by the size of the training data in each fold.
+We used mean absolute error (MAE) and mean squared error (MSE) to measure performance across folds. The 
+final model was chosen based on the average error, weighted by the size of the training data in each fold.
+
+\subsection{LTSM model parameter intialization}
+For efficiency purposes we save time during our initial search for an appropriate number of epochs by 
+fixing the number of hidden units to $15$ and lagged time steps to $25$. These values are the 'averages'
+of the values we will iterate over during the later more extensive grid search. 
+After we find the best epoch value we do another grid search over the number of hidden units and lagged
+time steps. We use the same method as before, but now we fix the number of epochs to the best value
+we found in the previous step. 
 
 \subsection{LTSM model parameter intialization}
 For efficiency purposes we save time during our initial search for an appropriate number of epochs by 
@@ -108,14 +110,28 @@ we use and necessary background information. If we made a method ourselvers poin
 Figures must be self contained (the legend and caption should have all the info for the figure).
 
 \section{Discussion}
-TODO: First we discuss how the gap from the introduction was filled by the report, the limitations
-of the approach, some future directions and perhaps an open problem we find. Afterwards Basically 
-everything we put some time into but did not write out to a result can be put here and anything we 
-wanted to do but did not can also be put here.
+As described in our methods section we used a recursive approach to predict future values of the time series (see Figure \ref{fig:recursivecv}).
+We did this for the entire validation folds length and use this "recursive loss" as a metric to evaluate the model. 
+However it would have been interesting to compare this with a non-recursive approach, where we would predict the next 
+value using only the true variables instead of the predicted values. That way you can't accumulate faults
+made earlier.
+
 
 \section*{AI statement}
-TODO: If we used machine learning generative AI to do anything we put it here.
+GitHub Copilot was used to assist in writing this report. It was used to generate code snippets and
+to help with the writing of the text. Moreover ChatGPT was used to format the single paper source as a 
+'$\backslash$bibitem'.
 
-\section*{References}
+
+\begin{thebibliography}{9}
+
+    \bibitem{kuen2021machine}
+    T. Kuen, L. R. F. Rose, W. K. Kong, and B. S. Vien,\\
+    \textit{A machine learning approach for anaerobic reactor performance prediction using Long Short-Term Memory Recurrent Neural Network},\\
+    Materials Research Proceedings, vol. 18, 2021.\\
+    Publisher: Materials Research Forum LLC.
+    
+    \end{thebibliography}
+    
 
 \end{document}
