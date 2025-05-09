@@ -14,19 +14,15 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{TODO}
+\title{Recursive Time Series Prediction Using Expanding Window Cross Validation\\}
 
 \author{\IEEEauthorblockN{Daniël Jochems}
-\IEEEauthorblockA{}
 \and
 \IEEEauthorblockN{David}
-\IEEEauthorblockA{6787258}
 \and
 \IEEEauthorblockN{Niek Grimbergen}
-\IEEEauthorblockA{1958413}
 \and
 \IEEEauthorblockN{Daan van Dam}
-\IEEEauthorblockA{6434657}
 }
 
 \maketitle
@@ -52,14 +48,14 @@ and the next value to be predicted is $\hat{y_k}$, which is the value at time $t
 updated by removing the first value and inserting $\hat{y_k}$ at the end of the vector giving us
 $[x_{t-n+1}, \ldots, x_{t-1}, \hat{y_k}]$, and we predict the next value $\hat{y_{k+1}}$. This is 
 repeated until the end of the validation fold is reached (see Figure \ref{fig:recursivecv}). This recursive structure of predicting 
-values into the future by inlcuding already predicted values for subsequent predictions reflects 
+values into the future by including already predicted values for subsequent predictions reflects 
 the problem of predicting future values. 
 
 \begin{figure}
     \includegraphics[scale = 0.47]{pictures/recursivecv.drawio.png}
     \caption{The recursive structure of the validation fold. The window of data points that are used 
     to predict the next value are shown. The first window being only true data points, subsequent windows
-    inreasingly include predicted values until only predicted values are considered. The size of the 
+    increasingly include predicted values until only predicted values are considered. The size of the 
     train fold increases with every fold, while the validation fold remains the same size.}
     \label{fig:recursivecv}
 \end{figure}
@@ -91,31 +87,42 @@ final model was chosen based on the average error, weighted by the size of the t
 
 \subsection{LTSM model parameter intialization}
 For efficiency purposes we save time during our initial search for an appropriate number of epochs by 
-fixing the number of hidden units to $15$ and lagged time steps to $25$. These values are the 'averages'
+fixing the number of hidden units to $15$ and lagged time steps to $25$, the result of which can be found in table \ref{tab:epoch_performance}. 
+These values are the 'averages'
 of the values we will iterate over during the later more extensive grid search. 
 After we find the best epoch value we do another grid search over the number of hidden units and lagged
 time steps. We use the same method as before, but now we fix the number of epochs to the best value
 we found in the previous step. 
 
-\subsection{LTSM model parameter intialization}
-For efficiency purposes we save time during our initial search for an appropriate number of epochs by 
-fixing the number of hidden units to $15$ and lagged time steps to $25$. These values are the 'averages'
-of the values we we will iterate over during the later more extensive grid search. 
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{rcc}
+    \hline
+    \textbf{Epoch} & \textbf{MSE} & \textbf{MAE} \\
+    \hline
+    10   & 3135.14 & 44.80 \\
+    20   & 2659.23 & 40.03 \\
+    50   & 2542.56 & 38.15 \\
+    100  & 2432.60 & 38.28 \\
+    500  & 2488.35 & 38.28 \\
+    1000 & 2436.53 & 37.82 \\
+    \hline
+    \end{tabular}
+    \caption{Model performance (MSE and MAE) across different training epochs during initial search}
+    \label{tab:epoch_performance}
+\end{table}  
 
 \section{Results}
-TODO: This should be a sequence of statements each supported with some evidence and a conclusion.
-Each statement is a subsection, the first paragraph of a statement summarizes the overall approach 
-to solving the problem stated in the introduction, explain essential features of existing methods
-we use and necessary background information. If we made a method ourselvers point it out clearly. 
-Figures must be self contained (the legend and caption should have all the info for the figure).
+Our LSTM model with $\textsc{epochs} = 50$,  achieved a mean absolute error (MAE) of $x$ and a mean squared error (MSE) of $y$ on the
+test data (recursively predicted). The exact parameters and that were considered  
 
 \section{Discussion}
 As described in our methods section we used a recursive approach to predict future values of the time series (see Figure \ref{fig:recursivecv}).
 We did this for the entire validation folds length and use this "recursive loss" as a metric to evaluate the model. 
 However it would have been interesting to compare this with a non-recursive approach, where we would predict the next 
 value using only the true variables instead of the predicted values. That way you can't accumulate faults
-made earlier.
-
+made earlier.  
+A limitation in our approach is 
 
 \section*{AI statement}
 GitHub Copilot was used to assist in writing this report. It was used to generate code snippets and
