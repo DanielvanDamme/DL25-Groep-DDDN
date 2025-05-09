@@ -31,10 +31,36 @@
 
 \maketitle
 
+\begin{abstract}
+    This paper investigates how to forecast univariate time series using deep learning, 
+    focusing on the question: how should models be evaluated when future predictions recursively 
+    depend on prior predictions? We implement a recursive evaluation strategy combined with 
+    expanding window cross-validation, where models must predict sequences without access to 
+    future ground truth. Using this framework, we train a Long Short-Term Memory (LSTM) model, 
+    performing grid search hyperparameter tuning over epochs, hidden units, and lag lengths. 
+    Our final model, using $35$ lags, $50$ hidden units and $50$ epochs achieves a mean 
+    squared error (MSE) of $2766.98$ and a mean absolute error (MAE) of $38.49$ on held-out test data. 
+    We also briefly explore a Temporal Convolutional Neural Network (TCNN).
+\end{abstract}
+
 \section{Introduction}
-For this assignment, we were given time series data and were tasked to train a deep learning model
-to predict future values in this time series. In this report, we will describe the methods we used 
-to train our model, the results we obtained and the conclusions we drew from these results.
+Predicting future values of a sequence based on past observations, is quite a challenge,
+especially when the data is noisy, non-stationary, or exhibits long-term dependencies. Recurrent 
+neural networks (RNNs) such as Long Short-Term Memory (LSTM) networks, are powerful tools to 
+tackle this problem due to their ability to capture temporal patterns and nonlinear relationships.
+
+For this assignment, we were provided with univariate time series data and were tasked with 
+designing a predictive model that could generate accurate predictions of future values. The key 
+difficulty in this task is not just fitting a model to historical data, but ensuring that 
+predictions remain stable and reliable as they are recursively used to forecast further into the 
+future. To this end, it is crucial to evaluate the model in a manner that reflects this recursive 
+nature.
+
+In this report, we describe the methodology we followed to engineer training data with lag 
+features, apply expanding window cross-validation, and build models using LSTM and Temporal 
+Convolutional Neural Networks (TCNN). We report on the hyperparameter tuning process, recursive 
+prediction strategy, and performance metrics. Our results highlight how recursive validation aligns
+better with the prediction task and reveal the performance trends across model configurations.
 
 \section{Methods}
 \subsection{Training data engineering}\label{traindataengineer}
@@ -220,11 +246,11 @@ predicted values against the true values of the provided test data are shown in 
 As described in our methods section, we used a recursive approach to predict future values of the 
 time series (see Figure \ref{fig:recursivecv}). We did this for the entire validation folds length 
 and used this "recursive loss" as a metric to evaluate the model. However, it would have been 
-interesting to compare this with a non-recursive approach, where we would predict the next value 
-using only the true variables instead of the predicted values. That way, you can't accumulate faults 
-made earlier.  
-A limitation in our approach is that we did not use more than one layer, whereas using more could be
-more beneficial.
+interesting to compare this with a non-recursive approach (like we did for TCNN in Figure 
+\ref{fig:actual_vs_predtcnn}), where we would predict the next value using only the true variables 
+instead of the predicted values. That way, you can't accumulate faults made earlier.  
+An additional limitation in our approach is that we did not use more than one layer, whereas using 
+more could be more beneficial, but greatly increases training time.
 
 \section*{AI statement}
 GitHub Copilot was used to assist in writing this report. It was used to generate code snippets and
@@ -262,8 +288,9 @@ Figure
     \begin{subfigure}{0.45\textwidth}  % Adjust width to fit on the page
         \centering
         \includegraphics[scale=1]{pictures/train_test_curve.png}
-        \caption{Train vs. Test Curve. Here are the results of the loss as described in section 
-        \ref{methodstcnn}. It is important to note that these are not recursively predicted values.}
+        \caption{Train vs. Test Curve. Here are the results produced by the TCNN model of the loss 
+        as described in section \ref{methodstcnn}. It is important to note that these are not 
+        recursively predicted values.}
         \label{fig:train_test_curve}
     \end{subfigure}
 \end{figure}
@@ -274,7 +301,8 @@ Figure
     \begin{subfigure}{0.45\textwidth}
         \includegraphics[scale=0.8]{pictures/actual_vs_pred.png}
         \caption{Actual vs. Predicted. The non-recursively predicted values plotted against the
-        true test values.}
+        true test values using the TCNN model.}
+        \label{fig:actual_vs_predtcnn}
     \end{subfigure}
     
     \vspace{0.5cm} % Adds a bit of space between the images
