@@ -22,7 +22,7 @@
 
 \author{\IEEEauthorblockN{Daniël Jochems}
 \and
-\IEEEauthorblockN{David}
+\IEEEauthorblockN{David Huizinga}
 \and
 \IEEEauthorblockN{Niek Grimbergen}
 \and
@@ -32,19 +32,19 @@
 \maketitle
 
 \section{Introduction}
-For this assignment we were given time series data and were tasked to train a deep learning model
-to predict future values in this time series. In this report we will describe the methods we used 
+For this assignment, we were given time series data and were tasked to train a deep learning model
+to predict future values in this time series. In this report, we will describe the methods we used 
 to train our model, the results we obtained and the conclusions we drew from these results.
 
 \section{Methods}
 \subsection{Training data engineering}\label{traindataengineer}
-First we prepare the timeseries data to accomodate lag features (past values of a variable at a
+First, we prepare the timeseries data to accommodate lag features (past values of a variable at a
 previous time step) using a lag-based sliding window approach. We do this by creating a new 
 dataframe with the lagged values of the time series and dropping the rows with missing values.
 
 Because the objective of this model is to predict future values of the time series, we need to
-make sure that the model is trained on past values and validated on future values. Every fold the 
-train fold grows by including the entire previous fold worth of data and adding the next fold's train fold.  
+make sure that the model is trained on past values and validated on future values. Every fold, the 
+train fold grows by including the entire previous fold's worth of data and adding the next fold's train fold.  
 The validation fold remains the same size. The validation fold is structured in the following manner:
 For a given time series of length $T$, we generate input-output pairs $(X_t,y_t)$ such that the 
 input vector $X_t$ contains the previous $n$ observations $[x_{t-n}, x_{t-n+1}, \ldots, x_{t-1}]$ 
@@ -58,13 +58,13 @@ the problem of predicting future values.
 \begin{figure}
     \includegraphics[scale = 0.47]{pictures/recursivecv.drawio.png}
     \caption{The recursive structure of the validation fold. The window of data points that are used 
-    to predict the next value are shown. The first window being only true data points, subsequent windows
+    to predict the next value is shown. The first window has only true data points, subsequent windows
     increasingly include predicted values until only predicted values are considered. The size of the 
     train fold increases with every fold, while the validation fold remains the same size.}
     \label{fig:recursivecv}
 \end{figure}
 
-%Every iteration we validate on the validation fold and save the metrics and an increasing weight. 
+%Every iteration, we validate on the validation fold and save the metrics and an increasing weight. 
 %The metrics over the folds are averaged taking into account these weights using the following
 %formula:
 
@@ -76,7 +76,7 @@ the architecture and tuning strategy described by Vien et al. \cite{kuen2021mach
 with a univariate time series, the model was set up to predict future values based solely on past 
 observations.
 
-Before training, the library we used standardized the data using z-scores to ensure consistent scaling. We 
+Before training, the library we used standardised the data using z-scores to ensure consistent scaling. We 
 then performed a three-dimensional grid search to tune the model, exploring different combinations of the 
 number of training epochs, the number of hidden units in the LSTM layer, and the number of lagged time 
 steps used as input. This helped us find the setup that worked best for our dataset.
@@ -85,17 +85,17 @@ The LSTM architecture itself was straightforward: it included a sequence input l
 a tunable number of units, a fully connected layer, and an output layer. To evaluate the model, we used 
 expanding window cross-validation (also known as forward-chaining), which ensured that the model was 
 always tested on future data it hadn’t seen during training — an important detail for time series tasks.
-Moreover a dropout option of $0.2$ was selected.
+Moreover, a dropout option of $0.2$ was selected.
 
 We used mean absolute error (MAE) and mean squared error (MSE) to measure performance across folds. The 
 final model was chosen based on the average error, weighted by the size of the training data in each fold.
 
-\subsection{LTSM model parameter intialization}
-For efficiency purposes we save time during our initial search for an appropriate number of epochs by 
+\subsection{LTSM model parameter initialisation}
+For efficiency purposes, we save time during our initial search for an appropriate number of epochs by 
 fixing the number of hidden units to $15$ and lagged time steps to $25$, the result of which can be found in table \ref{tab:epoch_performance}. 
 These values are the 'averages'
-of the values we will iterate over during the later more extensive grid search. 
-After we find the best epoch value we do another grid search over the number of hidden units and lagged
+of the values we will iterate over during the later, more extensive grid search. 
+After we find the best epoch value, we do another grid search over the number of hidden units and lagged
 time steps. We use the same method as before, but now we fix the number of epochs to the best value
 we found in the previous step. 
 
@@ -118,21 +118,21 @@ we found in the previous step.
 \end{table}  
 
 \subsection{Temporal Convolutional Neural Network (TCNN)}\label{methodstcnn}
-Additionally, we shortly experiment with a temporal convolutional neural network (TCNN) 
-\cite{lea2017temporal}. TCNNs are models that utilize 1-dimensional convolutional layers to capture 
+Additionally, we shortly experimented with a temporal convolutional neural network (TCNN) 
+\cite{lea2017temporal}. TCNNs are models that utilise 1-dimensional convolutional layers to capture 
 temporal dependencies in data. TCNNs make use of dilated convolutions, where a filter is applied 
-over a larger receptive field by skipping over input values. This allows modeling of long-range 
+over a larger receptive field by skipping over input values. This allows modelling of long-range 
 dependencies without an increase in computational complexity.
 
 To find the best hyperparameters for our model, we leverage the Optuna Python library 
-\cite{optuna}. Optuna optimizes hyperparameters by iteratively generating parameter configurations 
-with a probabilistic model, and observing which configurations minimize the weighted test loss. 
+\cite{optuna}. Optuna optimises hyperparameters by iteratively generating parameter configurations 
+with a probabilistic model, and observing which configurations minimise the weighted test loss. 
 This search was performed over 2000 iterations. 
 
-To accelerate the optimization process, we only train the model for 10 epochs each iteration. We 
-utilize a mean square error loss function. We use the Adam optimizer for training. In the TCNN 
+To accelerate the optimisation process, we only train the model for 10 epochs each iteration. We 
+utilise a mean square error loss function. We use the Adam optimiser for training. In the TCNN 
 architecture, we use the same number of channels for each layer to maintain a consistent feature 
-dimension throughout the network. This design choice simplifies the optimization process. Table 
+dimension throughout the network. This design choice simplifies the optimisation process. Table 
 \ref{tab:hyperparameter_search} below illustrates what hyperparameters were found, as well as in 
 what ranges the search was conducted. The results of this model are described in the supplementary
 section \ref{suppltcnnresults} as the validation on the test data was not done in line with the 
@@ -159,7 +159,7 @@ assignment.
 
 \section{Results}
 \subsection{Grid search}
-Doing another grid search using 50 Epochs which we found from our earlier search we group the results by
+Doing another grid search using 50 Epochs, which we found from our earlier search, we group the results by
 number of steps looking back 'lags' and number of hidden units. In table \ref{tab:lag_hidden_performance} we can see that
 the lowest MSE is at lag = $15.0$ and hidden units = $100$. The lowest MAE is at lag = $35.0$ and hidden units = $50$.
 
@@ -217,18 +217,18 @@ predicted values against the true values of the provided test data are shown in 
 \end{figure}
 
 \section{Discussion}
-As described in our methods section we used a recursive approach to predict future values of the 
+As described in our methods section, we used a recursive approach to predict future values of the 
 time series (see Figure \ref{fig:recursivecv}). We did this for the entire validation folds length 
-and use this "recursive loss" as a metric to evaluate the model. However it would have been 
+and used this "recursive loss" as a metric to evaluate the model. However, it would have been 
 interesting to compare this with a non-recursive approach, where we would predict the next value 
-using only the true variables instead of the predicted values. That way you can't accumulate faults 
+using only the true variables instead of the predicted values. That way, you can't accumulate faults 
 made earlier.  
-A limitation in our approach is that we did not use more than one layer whereas using more could be
+A limitation in our approach is that we did not use more than one layer, whereas using more could be
 more beneficial.
 
 \section*{AI statement}
 GitHub Copilot was used to assist in writing this report. It was used to generate code snippets and
-to help with the writing of the text. Moreover ChatGPT was used to format the single paper source 
+to help with the writing of the text. Moreover, ChatGPT was used to format the single paper source 
 as a '$\backslash$bibitem' and the tables in \LaTeX formatting.
 
 
