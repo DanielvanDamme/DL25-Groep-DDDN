@@ -1,7 +1,6 @@
 from sklearn.preprocessing import Normalizer
 import numpy as np
 
-
 def normalize(X_train: np.array, y_train: np.array, X_test: np.array, y_test: np.array) -> tuple[np.array, np.array, np.array, np.array, Normalizer, Normalizer]:
     
     X_normalizer = Normalizer()
