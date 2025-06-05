@@ -1,79 +1,79 @@
-\\documentclass[conference]{IEEEtran}
-\\IEEEoverridecommandlockouts
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 % Template version as of 6/27/2024
 
-\\usepackage{cite}
-\\usepackage{url}
-\\usepackage{subcaption}
-\\usepackage{float}
-\\usepackage{placeins}
-\\usepackage{svg}
-\\usepackage{amsmath,amssymb,amsfonts}
-\\usepackage{algorithmic}
-\\usepackage{graphicx}
-\\usepackage{textcomp}
-\\usepackage{xcolor}
-\\def\\BibTeX{{\\rm B\\kern-.05em\\textsc{i}\\kern-.025em b\\kern-.08em
-    T\\kern-.1667em\\lower.7ex\\hbox{E}\\kern-.125emX}}
-\\begin{document}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{svg}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em\textsc{i}\kern-.025em b\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
 
-\\title{[TITLE PLACEHOLDER]}
+\title{[TITLE PLACEHOLDER]}
 
-\\author{\\IEEEauthorblockN{Dani\\"el Jochems} \\\\ 
-\\IEEEauthorblockN{David Huizinga} \\\\ 
-\\IEEEauthorblockN{Niek Grimbergen} \\\\ 
-\\IEEEauthorblockN{Daan van Dam}}
+\author{\IEEEauthorblockN{Dani\"el Jochems}
+\IEEEauthorblockN{David Huizinga}
+\IEEEauthorblockN{Niek Grimbergen}
+\IEEEauthorblockN{Daan van Dam}}
 
-\\maketitle
+\maketitle
 
-\\begin{abstract}
+\begin{abstract}
 [Abstract placeholder]
-\\end{abstract}
+\end{abstract}
 
-\\section{Introduction}
+\section{Introduction}
 [Placeholder]
 
-\\section{Methods}
+\section{Methods}
 
-\\subsection{Data Engineering}
+\subsection{Data Engineering}
 [placeholder]
 
-\\subsubsection{Normalization}
-To prepare the data for the model, we implemented a normalization procedure using the Normalizer class from sklearn. The normalize function applies L2 normalization to both the training and test datasets. With L2 normalization, each vector is scaled so that its norm equals 1, while preserving the direction of the original data. This helps reduce differences in scal or magnitude across the different sensor readings and labels, this will improve the models’ learning process. The normalize function works by first fitting separate normalizers on the training data for X and y. These fitted normalizers are then used to transform both the training and test sets so that the test data is placed on the same scale as the training data.
+\subsubsection{Normalization}
+To prepare the data for the model, we implemented a normalization procedure using the Normalizer class from sklearn. The normalize function applies L2 normalization to both the training and test datasets. With L2 normalization, each vector is scaled so that its norm equals 1, while preserving the direction of the original data. This helps reduce differences in scal or magnitude across the different sensor readings and labels, this will improve the models' learning process. The normalize function works by first fitting separate normalizers on the training data for X and y. These fitted normalizers are then used to transform both the training and test sets so that the test data is placed on the same scale as the training data.
 
-\\subsubsection{Downsampling}
+\subsubsection{Downsampling}
 [Placeholder]
 
-\\subsection{Model Description}
+\subsection{Model Description}
 [Placeholder]
 
-\\subsection{Hyperparameter Tuning}
+\subsection{Hyperparameter Tuning}
 [Placeholder]
 
-\\section{Results}
+\section{Results}
 [Placeholder]
 
-\\begin{figure}[H]
-    \\centering
-    \\includegraphics[scale=0.5]{pictures/placeholder.png}
-    \\caption{Placeholder figure}
-    \\label{fig:placeholder}
-\\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[scale=0.5]{pictures/placeholder.png}
+%     \caption{Placeholder figure}
+%     \label{fig:placeholder}
+% \end{figure}
 
-\\section{Discussion}
+\section{Discussion}
 [Placeholder]
 
-\\section*{AI Statement}
+\section*{AI Statement}
 
+% \begin{thebibliography}{9}
+% % [Placeholder for references]
+% \end{thebibliography}
 
-\\begin{thebibliography}{9}
-% [Placeholder for references]
-\\end{thebibliography}
-
-\\clearpage
-\\onecolumn
-\\section*{Supplementary Materials}
+\section*{Supplementary Materials}
 [Placeholder for supplementary figures or results]
 
-\\end{document}
+\clearpage
+\onecolumn
+
+\end{document}
