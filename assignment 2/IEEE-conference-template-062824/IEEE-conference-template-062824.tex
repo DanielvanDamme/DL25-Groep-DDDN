@@ -36,18 +36,13 @@
 \subsection{Data Engineering}
 
 \subsubsection{Normalization}
-To prepare the data for the model, we implemented a normalization procedure using the Normalizer 
-class from sklearn. The normalize function applies L2 normalization to both the training and test 
-datasets. With L2 normalization, each vector is scaled so that its norm equals 1, while preserving 
-the direction of the original data. This helps reduce differences in scal or magnitude across the 
-different sensor readings and labels, this will improve the models' learning process. The normalize
-function works by first fitting separate normalizers on the training data for X and y. These fitted 
-normalizers are then used to transform both the training and test sets so that the test data is 
-placed on the same scale as the training data.
+To normalize the data, we applied min-max scaling, bringing each feature to the [0,1] range based on the global minimum and maximum values computed from the entire training set. This approach preserves the relative structure of the data while ensuring all features operate on a comparable scale, especially with sensor-based time-series inputs. The normalization is implemented in the scale_data function and applied uniformly to both training and test sets, using the training statistics only. We do this to ensure consistency across the entire pipeline.
 
 \subsubsection{Downsampling}
+We applied uniform downsampling to the data to reduce temporal resolution and computational load. This is done by selecting a fixed proportion of timesteps in evenly spaced intervals accross the full sequence, in our case we chose this to be 10 percent \texttt{[motivatie voor 10 procent]}. With this implementation we compute the stride based on the downsampeling factor and select indices accordingly, ensuring consistent coverage of the original signal. 
 
 \subsection{Model Description}
+
 
 \subsection{Hyperparameter Tuning}
 
