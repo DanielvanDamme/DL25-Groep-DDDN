@@ -7,8 +7,7 @@
 \providecommand{\BIBentrySTDinterwordspacing}{\spaceskip=0pt\relax}
 \providecommand{\BIBentryALTinterwordstretchfactor}{4}
 \providecommand{\BIBentryALTinterwordspacing}{\spaceskip=\fontdimen2\font plus
-\BIBentryALTinterwordstretchfactor\fontdimen3\font minus
-  \fontdimen4\font\relax}
+\BIBentryALTinterwordstretchfactor\fontdimen3\font minus \fontdimen4\font\relax}
 \providecommand{\BIBforeignlanguage}[2]{{%
 \expandafter\ifx\csname l@#1\endcsname\relax
 \typeout{** WARNING: IEEEtran.bst: No hyphenation pattern has been}%
@@ -21,10 +20,33 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
+\bibitem{belhadi2025eeg}
+A.~Belhadi, A.~Yazidi, P.~G. Lind, and Y.~Djenouri, ``Eeg data classification: Review and taxonomy,'' \emph{ACM Transactions on Computing for Healthcare}, 2025.
+
+\bibitem{lecun2015deep}
+Y.~LeCun, Y.~Bengio, and G.~Hinton, ``Deep learning,'' \emph{nature}, vol. 521, no. 7553, pp. 436--444, 2015.
+
+\bibitem{besserve2007classification}
+M.~Besserve, K.~Jerbi, F.~Laurent, S.~Baillet, J.~Martinerie, and L.~Garnero, ``Classification methods for ongoing eeg and meg signals,'' \emph{Biological research}, vol.~40, no.~4, pp. 415--437, 2007.
+
+\bibitem{lawhern2018eegnet}
+V.~J. Lawhern, A.~J. Solon, N.~R. Waytowich, S.~M. Gordon, C.~P. Hung, and B.~J. Lance, ``Eegnet: a compact convolutional neural network for eeg-based brain--computer interfaces,'' \emph{Journal of neural engineering}, vol.~15, no.~5, p. 056013, 2018.
+
+\bibitem{zhang2018cascade}
+D.~Zhang, L.~Yao, X.~Zhang, S.~Wang, W.~Chen, R.~Boots, and B.~Benatallah, ``Cascade and parallel convolutional recurrent neural networks on eeg-based intention recognition for brain computer interface,'' in \emph{Proceedings of the aaai conference on artificial intelligence}, vol.~32, no.~1, 2018.
+
+\bibitem{abdellaoui2020deepbrainstateclassification}
+\BIBentryALTinterwordspacing
+I.~A. Abdellaoui, J.~G. Fernandez, C.~Sahinli, and S.~Mehrkanoon, ``Deep brain state classification of meg data,'' 2020. [Online]. Available: \url{https://arxiv.org/abs/2007.00897}
+\BIBentrySTDinterwordspacing
+
+\bibitem{vaswani2017attention}
+A.~Vaswani, N.~Shazeer, N.~Parmar, J.~Uszkoreit, L.~Jones, A.~N. Gomez, {\L}.~Kaiser, and I.~Polosukhin, ``Attention is all you need,'' \emph{Advances in neural information processing systems}, vol.~30, 2017.
+
+\bibitem{ali2024comprehensive}
+Z.~Ali, ``A comprehensive overview and comparative analysis of cnn, rnn-lstm and transformer,'' \emph{RNN-LSTM and Transformer (December 31, 2024)}, 2024.
+
 \bibitem{gramfort2013meg}
-A.~Gramfort, M.~Luessi, E.~Larson, D.~A. Engemann, D.~Strohmeier, C.~Brodbeck,
-  R.~Goj, M.~Jas, T.~Brooks, L.~Parkkonen \emph{et~al.}, ``Meg and eeg data
-  analysis with mne-python,'' \emph{Frontiers in Neuroinformatics}, vol.~7, p.
-  267, 2013.
+A.~Gramfort, M.~Luessi, E.~Larson, D.~A. Engemann, D.~Strohmeier, C.~Brodbeck, R.~Goj, M.~Jas, T.~Brooks, L.~Parkkonen \emph{et~al.}, ``Meg and eeg data analysis with mne-python,'' \emph{Frontiers in Neuroinformatics}, vol.~7, p. 267, 2013.
 
 \end{thebibliography}
