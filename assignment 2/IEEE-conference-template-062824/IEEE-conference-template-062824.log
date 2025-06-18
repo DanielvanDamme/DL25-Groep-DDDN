@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.4.30)  18 JUN 2025 13:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.4.30)  18 JUN 2025 13:12
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -611,15 +611,15 @@ Package rerunfilecheck Info: File `IEEE-conference-template-062824.out' has not 
 (rerunfilecheck)             Checksum: 7B5295D316126AD6E8CAC5FA6507C354;2383.
  ) 
 Here is how much of TeX's memory you used:
- 14950 strings out of 474222
- 254908 string characters out of 5748733
+ 14951 strings out of 474222
+ 254918 string characters out of 5748733
  1947975 words of memory out of 5000000
- 36917 multiletter control sequences out of 15000+600000
+ 36918 multiletter control sequences out of 15000+600000
  594478 words of font info for 106 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  94i,9n,93p,2547b,447s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on IEEE-conference-template-062824.pdf (7 pages, 365438 bytes).
+Output written on IEEE-conference-template-062824.pdf (7 pages, 365439 bytes).
 PDF statistics:
  212 PDF objects out of 1000 (max. 8388607)
  178 compressed objects within 2 object streams
